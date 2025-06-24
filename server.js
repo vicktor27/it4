@@ -1,0 +1,91 @@
+import pool from "./db.js";
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en puerto en http://localhost:${PORT}`);
+});
+
+process.on("unhandledRejection", (error) => {
+  console.error("❌ Unhandled Rejection:", error.message);
+});
+
+dotenv.config();
+app.use(cors());
+app.use(express.json());
+
+const tableName = "data";
+
+app.post("/create-data-table", async (req, res) => {
+  try {
+    const checkTable = await pool.query(
+      `SELECT to_regclass($1)::text AS exists`,
+      [`public.${tableName}`]
+    );
+
+    if (!checkTable.rows[0].exists) {
+      await pool.query(`
+        CREATE TABLE data (
+          id SERIAL PRIMARY KEY,
+          value TEXT NOT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+
+      return res.status(201).json({ message: "✅ Tabla creada exitosamente" });
+    }
+    return res.status(200).json({ message: "ℹ La tabla ya existe" });
+  } catch (error) {
+    console.error("❌ Error:", error.message);
+    return res.status(500).json({ error: "Error al procesar la solicitud" });
+  }
+});
+
+app.post("/save-data", async (req, res) => {
+  const { value } = req.body;
+
+  if (!value) {
+    return res.status(400).json({ error: "El campo 'value' es requerido" });
+  }
+
+  try {
+    const result = await pool.query(
+      `INSERT INTO ${tableName} (value) VALUES ($1) RETURNING *`,
+      [value]
+    );
+
+    return res.status(201).json({
+      message: "✅ Datos guardados exitosamente",
+      data: result.rows[0],
+    });
+  } catch (error) {
+    console.error("❌ Error:", error.message);
+    return res.status(500).json({ error: "Error al guardar los datos" });
+  }
+});
+
+app.post("/drop-data-table", async (req, res) => {
+  try {
+    const tableName = "data";
+
+    await pool.query(`DROP TABLE IF EXISTS ${tableName}`);
+
+    return res.status(200).json({ message: "✅ Tabla eliminada exitosamente" });
+  } catch (error) {
+    console.error("❌ Error:", error.message);
+    return res.status(500).json({ error: "Error al eliminar la tabla" });
+  }
+});
+
+app.get("/temperatura", (req, res) => {
+  try {
+    res.json({ valor: "10 °C", timestamp: new Date().toISOString() });
+  } catch (error) {
+    console.error("❌ Error:", error.message);
+    return res.status(500).json({ error: "Error al obtener temperatura" });
+  }
+});
