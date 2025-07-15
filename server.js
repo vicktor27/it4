@@ -4,7 +4,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3050;
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto en http://localhost:${PORT}`);
@@ -18,9 +18,8 @@ dotenv.config();
 app.use(cors());
 app.use(express.json());
 
-const tableName = "data";
-
 app.post("/create-data-table", async (req, res) => {
+  const tableName = "data";
   try {
     const checkTable = await pool.query(
       `SELECT to_regclass($1)::text AS exists`,
@@ -51,7 +50,7 @@ app.post("/save-data", async (req, res) => {
   if (!value) {
     return res.status(400).json({ error: "El campo 'value' es requerido" });
   }
-
+  const tableName = "data";
   try {
     const result = await pool.query(
       `INSERT INTO ${tableName} (value) VALUES ($1) RETURNING *`,
@@ -75,17 +74,32 @@ app.post("/drop-data-table", async (req, res) => {
     await pool.query(`DROP TABLE IF EXISTS ${tableName}`);
 
     return res.status(200).json({ message: "✅ Tabla eliminada exitosamente" });
-  } catch (error) {
-    console.error("❌ Error:", error.message);
+  } catch (err) {
+    //console.error("❌ Error:", error.message);
     return res.status(500).json({ error: "Error al eliminar la tabla" });
   }
 });
 
-app.get("/temperatura", (req, res) => {
+app.get("/get-data", async (req, res) => {
   try {
-    res.json({ valor: "10 °C", timestamp: new Date().toISOString() });
-  } catch (error) {
-    console.error("❌ Error:", error.message);
-    return res.status(500).json({ error: "Error al obtener temperatura" });
+    const tableName = "data";
+    const result = await pool.query(`SELECT * FROM  ${tableName}`);
+
+    //  console.log(result.rows());
+    return res.json(result.rows);
+  } catch (err) {
+    return res.status(500).json({ error: "Imposible Regresar los datos" });
   }
 });
+
+/*
+app.get("/temperatura"),
+  async (req, res) => {
+    try {
+      res.json({ valor: "10 °C", timestamp: new Date().toISOString() });
+    } catch (error) {
+      console.error("❌ Error:", error.message);
+      return res.status(500).json({ error: "Error al obtener temperatura" });
+    }
+  };
+*/

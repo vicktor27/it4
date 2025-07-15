@@ -5,7 +5,7 @@ dotenv.config();
 
 const pool = new Pool({
   connectionString:
-    "postgresql://iot_db_gei0_user:axQ8NG24jzrS4tbsTlZgMd3GozEZOLzf@dpg-d0rmjhjipnbc73efv7sg-a.oregon-postgres.render.com/iot_db_gei0",
+    "postgresql://ut4_user:5kFDqGiCcOQVps1xrYmxVNDJPB7SXjEA@dpg-d1rap56uk2gs739ogt60-a.oregon-postgres.render.com/ut4",
   ssl: { rejectUnauthorized: true },
 });
 
