@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 
 const app = express();
 const PORT = process.env.PORT || 3050;
+deviceStatus.isOn = true;
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto en http://localhost:${PORT}`);
@@ -48,7 +49,6 @@ app.post("/create-data-table", async (req, res) => {
 app.post("/turn-on", async (req, res) => {
   const { user, enrollId } = req.body;
   const deviceStatus = {};
-  deviceStatus.isOn = true;
 
   try {
     await pool.query(
