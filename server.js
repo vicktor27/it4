@@ -5,7 +5,6 @@ import dotenv from "dotenv";
 
 const app = express();
 const PORT = process.env.PORT || 3050;
-deviceStatus.isOn = true;
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto en http://localhost:${PORT}`);
