@@ -4,7 +4,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 
 const app = express();
-const PORT = process.env.PORT || 3050;
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto en http://localhost:${PORT}`);
@@ -101,7 +101,6 @@ app.get("/status", async (req, res) => {
   }
 });
 
-
 app.post("/save-data", async (req, res) => {
   const { value } = req.body;
 
@@ -124,8 +123,6 @@ app.post("/save-data", async (req, res) => {
     return res.status(500).json({ error: "Error al guardar los datos" });
   }
 });
-
-
 
 app.post("/drop-data-table", async (req, res) => {
   try {
