@@ -67,29 +67,6 @@ app.post("/create-device-tables", async (req, res) => {
   }
 });
 
-app.post("/save-data", async (req, res) => {
-  const { value } = req.body;
-
-  if (!value) {
-    return res.status(400).json({ error: "El campo 'value' es requerido" });
-  }
-  const tableName = "data";
-  try {
-    const result = await pool.query(
-      `INSERT INTO ${tableName} (value) VALUES ($1) RETURNING *`,
-      [value]
-    );
-
-    return res.status(201).json({
-      message: "✅ Datos guardados exitosamente",
-      data: result.rows[0],
-    });
-  } catch (error) {
-    console.error("❌ Error:", error.message);
-    return res.status(500).json({ error: "Error al guardar los datos" });
-  }
-});
-
 app.post("/turn-on", async (req, res) => {
   try {
     await pool.query(`
@@ -123,6 +100,32 @@ app.get("/status", async (req, res) => {
     return res.status(500).json({ error: "No se pudo leer estado" });
   }
 });
+
+
+app.post("/save-data", async (req, res) => {
+  const { value } = req.body;
+
+  if (!value) {
+    return res.status(400).json({ error: "El campo 'value' es requerido" });
+  }
+  const tableName = "data";
+  try {
+    const result = await pool.query(
+      `INSERT INTO ${tableName} (value) VALUES ($1) RETURNING *`,
+      [value]
+    );
+
+    return res.status(201).json({
+      message: "✅ Datos guardados exitosamente",
+      data: result.rows[0],
+    });
+  } catch (error) {
+    console.error("❌ Error:", error.message);
+    return res.status(500).json({ error: "Error al guardar los datos" });
+  }
+});
+
+
 
 app.post("/drop-data-table", async (req, res) => {
   try {
